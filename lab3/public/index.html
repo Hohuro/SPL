@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Lab3_MongoDb</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <style>
+        .container {
+            width: 90%;
+            height: 90%;
+            border: 1px;
+            border: 1.7px solid black;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+    <div class="container">
+        <h2>Список гравців</h2>
+        <form name="gamerForm">
+            <input type="hidden" name="id" value="0" />
+            <div class="form-discipline">
+                <label for="name">Ім'я:</label>
+                <input class="form-control" name="name" />
+            </div>
+            <div class="form-discipline">
+                <label for="lastname">Прізвище:</label>
+                <input class="form-control" name="lastname" />
+            </div>
+            <div class="form-discipline">
+                <label for="age">Вік:</label>
+                <input class="form-control" name="age" />
+            </div>
+            <div class="form-discipline">
+                <label for="discipline">Дисципліна:</label>
+                <input class="form-control" name="discipline" />
+            </div>
+            <div class="panel-body">
+                <button type="submit" class="btn btn-sm btn-primary">Зберегти</button>
+                <a id="reset" class="btn btn-sm btn-primary">Скинути</a>
+            </div>
+        </form>
+        <table class="table table-condensed table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Ім'я</th>
+                    <th>Прізвище</th>
+                    <th>Вік</th>
+                    <th>Дисципліна</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        // Получение всех пользователей
+        async function Getgamers() {
+            // отправляет запрос и получаем ответ
+            const response = await fetch("/api/gamers", {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            // если запрос прошел нормально
+            if (response.ok === true) {
+                // получаем данные
+                const gamers = await response.json();
+                let rows = document.querySelector("tbody");
+                gamers.forEach(gamer => {
+                    // добавляем полученные элементы в таблицу
+                    rows.append(row(gamer));
+                });
+            }
+        }
+        // Получение одного пользователя
+        async function Getgamer(id) {
+            const response = await fetch("/api/gamers/" + id, {
+                method: "GET",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const gamer = await response.json();
+                const form = document.forms["gamerForm"];
+                form.elements["id"].value = gamer._id;
+                form.elements["name"].value = gamer.name;
+                form.elements["lastname"].value = gamer.lastname;
+                form.elements["age"].value = gamer.age;
+                form.elements["discipline"].value = gamer.discipline;
+            }
+        }
+        // Добавление пользователя
+        async function Creategamer(gamerName, gamerLastName, gamerAge, gamerDiscipline) {
+
+            const response = await fetch("api/gamers", {
+                method: "POST",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: gamerName,
+                    lastname: gamerLastName,
+                    age: parseInt(gamerAge, 10),
+                    discipline: gamerDiscipline,
+                })
+            });
+            if (response.ok === true) {
+                const gamer = await response.json();
+                reset();
+                document.querySelector("tbody").append(row(gamer));
+            }
+        }
+        // Изменение пользователя
+        async function Editgamer(gamerId, gamerName, gamerLastName, gamerAge, gamerDiscipline) {
+            const response = await fetch("api/gamers", {
+                method: "PUT",
+                headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: gamerId,
+                    name: gamerName,
+                    lastname: gamerLastName,
+                    age: parseInt(gamerAge, 10),
+                    discipline: gamerDiscipline
+                })
+            });
+            if (response.ok === true) {
+                const gamer = await response.json();
+                reset();
+                document.querySelector("tr[data-rowid='" + gamer._id + "']").replaceWith(row(gamer));
+            }
+        }
+        // Удаление пользователя
+        async function Deletegamer(id) {
+            const response = await fetch("/api/gamers/" + id, {
+                method: "DELETE",
+                headers: { "Accept": "application/json" }
+            });
+            if (response.ok === true) {
+                const gamer = await response.json();
+                document.querySelector("tr[data-rowid='" + gamer._id + "']").remove();
+            }
+        }
+
+        // сброс формы
+        function reset() {
+            const form = document.forms["gamerForm"];
+            form.reset();
+            form.elements["id"].value = 0;
+        }
+        // создание строки для таблицы
+        function row(gamer) {
+
+            const tr = document.createElement("tr");
+            tr.setAttribute("data-rowid", gamer._id);
+
+            const idTd = document.createElement("td");
+            idTd.append(gamer._id);
+            tr.append(idTd);
+
+            const nameTd = document.createElement("td");
+            nameTd.append(gamer.name);
+            tr.append(nameTd);
+
+            const lastnameTd = document.createElement("td");
+            lastnameTd.append(gamer.lastname);
+            tr.append(lastnameTd);
+
+            const ageTd = document.createElement("td");
+            ageTd.append(gamer.age);
+            tr.append(ageTd);
+
+            const disciplineTd = document.createElement("td");
+            disciplineTd.append(gamer.discipline);
+            tr.append(disciplineTd);
+
+            const linksTd = document.createElement("td");
+
+            const editLink = document.createElement("a");
+            editLink.setAttribute("data-id", gamer._id);
+            editLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            editLink.append("Редагувати");
+            editLink.addEventListener("click", e => {
+
+                e.preventDefault();
+                Getgamer(gamer._id);
+            });
+            linksTd.append(editLink);
+
+            const removeLink = document.createElement("a");
+            removeLink.setAttribute("data-id", gamer._id);
+            removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            removeLink.append("Видалити");
+            removeLink.addEventListener("click", e => {
+
+                e.preventDefault();
+                Deletegamer(gamer._id);
+            });
+
+            linksTd.append(removeLink);
+            tr.appendChild(linksTd);
+
+            return tr;
+        }
+        // сброс значений формы
+        document.getElementById("reset").click(function (e) {
+            e.preventDefault();
+            reset();
+        })
+
+        // отправка формы
+        document.forms["gamerForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["gamerForm"];
+            const id = form.elements["id"].value;
+            const name = form.elements["name"].value;
+            const lastname = form.elements["lastname"].value;
+            const age = form.elements["age"].value;
+            const discipline = form.elements["discipline"].value;
+            if (id == 0)
+                Creategamer(name, lastname, age, discipline);
+            else
+                Editgamer(id, name, lastname, age, discipline);
+        });
+
+        // загрузка пользователей
+        Getgamers();
+    </script>
+</body>
+
+</html>
