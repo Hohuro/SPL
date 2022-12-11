@@ -21,23 +21,23 @@
     </style>
     <div class="container">
         <h2>Список студентів</h2>
-        <form name="studentForm">
+        <form name="gamerForm">
             <input type="hidden" name="id" value="0" />
-            <div class="form-group">
+            <div class="form-discipline">
                 <label for="name">Ім'я:</label>
                 <input class="form-control" name="name" />
             </div>
-            <div class="form-group">
+            <div class="form-discipline">
                 <label for="lastname">Прізвище:</label>
                 <input class="form-control" name="lastname" />
             </div>
-            <div class="form-group">
+            <div class="form-discipline">
                 <label for="age">Вік:</label>
                 <input class="form-control" name="age" />
             </div>
-            <div class="form-group">
-                <label for="group">Група:</label>
-                <input class="form-control" name="group" />
+            <div class="form-discipline">
+                <label for="discipline">Група:</label>
+                <input class="form-control" name="discipline" />
             </div>
             <div class="panel-body">
                 <button type="submit" class="btn btn-sm btn-primary">Зберегти</button>
@@ -61,142 +61,142 @@
     </div>
     <script>
         // Получение всех пользователей
-        async function Getstudents() {
+        async function Getgamers() {
             // отправляет запрос и получаем ответ
-            const response = await fetch("/api/students", {
+            const response = await fetch("/api/gamers", {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
             // если запрос прошел нормально
             if (response.ok === true) {
                 // получаем данные
-                const students = await response.json();
+                const gamers = await response.json();
                 let rows = document.querySelector("tbody");
-                students.forEach(student => {
+                gamers.forEach(gamer => {
                     // добавляем полученные элементы в таблицу
-                    rows.append(row(student));
+                    rows.append(row(gamer));
                 });
             }
         }
         // Получение одного пользователя
-        async function Getstudent(id) {
-            const response = await fetch("/api/students/" + id, {
+        async function Getgamer(id) {
+            const response = await fetch("/api/gamers/" + id, {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const student = await response.json();
-                const form = document.forms["studentForm"];
-                form.elements["id"].value = student._id;
-                form.elements["name"].value = student.name;
-                form.elements["lastname"].value = student.lastname;
-                form.elements["age"].value = student.age;
-                form.elements["group"].value = student.group;
+                const gamer = await response.json();
+                const form = document.forms["gamerForm"];
+                form.elements["id"].value = gamer._id;
+                form.elements["name"].value = gamer.name;
+                form.elements["lastname"].value = gamer.lastname;
+                form.elements["age"].value = gamer.age;
+                form.elements["discipline"].value = gamer.discipline;
             }
         }
         // Добавление пользователя
-        async function Createstudent(studentName, studentLastName, studentAge, studentGroup) {
+        async function Creategamer(gamerName, gamerLastName, gamerAge, gamerdiscipline) {
 
-            const response = await fetch("api/students", {
+            const response = await fetch("api/gamers", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    name: studentName,
-                    lastname: studentLastName,
-                    age: parseInt(studentAge, 10),
-                    group: studentGroup,
+                    name: gamerName,
+                    lastname: gamerLastName,
+                    age: parseInt(gamerAge, 10),
+                    discipline: gamerDiscipline,
                 })
             });
             if (response.ok === true) {
-                const student = await response.json();
+                const gamer = await response.json();
                 reset();
-                document.querySelector("tbody").append(row(student));
+                document.querySelector("tbody").append(row(gamer));
             }
         }
         // Изменение пользователя
-        async function Editstudent(studentId, studentName, studentLastName, studentAge, studentGroup) {
-            const response = await fetch("api/students", {
+        async function Editgamer(gamerId, gamerName, gamerLastName, gamerAge, gamerDiscipline) {
+            const response = await fetch("api/gamers", {
                 method: "PUT",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    id: studentId,
-                    name: studentName,
-                    lastname: studentLastName,
-                    age: parseInt(studentAge, 10),
-                    group: studentGroup
+                    id: gamerId,
+                    name: gamerName,
+                    lastname: gamerLastName,
+                    age: parseInt(gamerAge, 10),
+                    discipline: gamerDiscipline
                 })
             });
             if (response.ok === true) {
-                const student = await response.json();
+                const gamer = await response.json();
                 reset();
-                document.querySelector("tr[data-rowid='" + student._id + "']").replaceWith(row(student));
+                document.querySelector("tr[data-rowid='" + gamer._id + "']").replaceWith(row(gamer));
             }
         }
         // Удаление пользователя
-        async function Deletestudent(id) {
-            const response = await fetch("/api/students/" + id, {
+        async function Deletegamer(id) {
+            const response = await fetch("/api/gamers/" + id, {
                 method: "DELETE",
                 headers: { "Accept": "application/json" }
             });
             if (response.ok === true) {
-                const student = await response.json();
-                document.querySelector("tr[data-rowid='" + student._id + "']").remove();
+                const gamer = await response.json();
+                document.querySelector("tr[data-rowid='" + gamer._id + "']").remove();
             }
         }
 
         // сброс формы
         function reset() {
-            const form = document.forms["studentForm"];
+            const form = document.forms["gamerForm"];
             form.reset();
             form.elements["id"].value = 0;
         }
         // создание строки для таблицы
-        function row(student) {
+        function row(gamer) {
 
             const tr = document.createElement("tr");
-            tr.setAttribute("data-rowid", student._id);
+            tr.setAttribute("data-rowid", gamer._id);
 
             const idTd = document.createElement("td");
-            idTd.append(student._id);
+            idTd.append(gamer._id);
             tr.append(idTd);
 
             const nameTd = document.createElement("td");
-            nameTd.append(student.name);
+            nameTd.append(gamer.name);
             tr.append(nameTd);
 
             const lastnameTd = document.createElement("td");
-            lastnameTd.append(student.lastname);
+            lastnameTd.append(gamer.lastname);
             tr.append(lastnameTd);
 
             const ageTd = document.createElement("td");
-            ageTd.append(student.age);
+            ageTd.append(gamer.age);
             tr.append(ageTd);
 
-            const groupTd = document.createElement("td");
-            groupTd.append(student.group);
-            tr.append(groupTd);
+            const disciplineTd = document.createElement("td");
+            disciplineTd.append(gamer.discipline);
+            tr.append(disciplineTd);
 
             const linksTd = document.createElement("td");
 
             const editLink = document.createElement("a");
-            editLink.setAttribute("data-id", student._id);
+            editLink.setAttribute("data-id", gamer._id);
             editLink.setAttribute("style", "cursor:pointer;padding:15px;");
             editLink.append("Редагувати");
             editLink.addEventListener("click", e => {
 
                 e.preventDefault();
-                Getstudent(student._id);
+                Getgamer(gamer._id);
             });
             linksTd.append(editLink);
 
             const removeLink = document.createElement("a");
-            removeLink.setAttribute("data-id", student._id);
+            removeLink.setAttribute("data-id", gamer._id);
             removeLink.setAttribute("style", "cursor:pointer;padding:15px;");
             removeLink.append("Видалити");
             removeLink.addEventListener("click", e => {
 
                 e.preventDefault();
-                Deletestudent(student._id);
+                Deletegamer(gamer._id);
             });
 
             linksTd.append(removeLink);
@@ -211,22 +211,22 @@
         })
 
         // отправка формы
-        document.forms["studentForm"].addEventListener("submit", e => {
+        document.forms["gamerForm"].addEventListener("submit", e => {
             e.preventDefault();
-            const form = document.forms["studentForm"];
+            const form = document.forms["gamerForm"];
             const id = form.elements["id"].value;
             const name = form.elements["name"].value;
             const lastname = form.elements["lastname"].value;
             const age = form.elements["age"].value;
-            const group = form.elements["group"].value;
+            const discipline = form.elements["discipline"].value;
             if (id == 0)
-                Createstudent(name, lastname, age, group);
+                Creategamer(name, lastname, age, discipline);
             else
-                Editstudent(id, name, lastname, age, group);
+                Editgamer(id, name, lastname, age, discipline);
         });
 
         // загрузка пользователей
-        Getstudents();
+        Getgamers();
     </script>
 </body>
 
