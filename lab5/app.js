@@ -18,18 +18,18 @@ const options = {
 
 const url = `mongodb://${MONGO_DB_HOSTNAME}:${MONGO_DB_PORT}/${MONGO_DB}`;
 
-const studentScheme = new Schema(
+const gamerScheme = new Schema(
     {
         name: String,
         lastname: String,
         age: Number,
-        group: String,
+        discipline: String,
     },
     { versionKey: false }
 );
 
 
-const Student = mongoose.model("Student", studentScheme);
+const Gamer = mongoose.model("Gamer", gamerScheme);
 
 app.use(express.static(__dirname + "/public"));
 
@@ -40,62 +40,62 @@ mongoose.connect(url, options, function (err) {
     });
 });
 
-app.get("/api/students", function (req, res) {
-    Student.find({}, function (err, students) {
+app.get("/api/gamers", function (req, res) {
+    Gamer.find({}, function (err, gamers) {
 
         if (err) return console.log(err);
-        res.send(students)
+        res.send(gamers)
     });
 
 });
-app.get("/api/students/:id", function (req, res) {
+app.get("/api/gamers/:id", function (req, res) {
     const id = req.params.id;
-    Student.findOne({ _id: id }, function (err, students) {
+    Gamer.findOne({ _id: id }, function (err, gamers) {
 
         if (err) return console.log(err);
-        res.send(students);
+        res.send(gamers);
     });
 });
 
-app.post("/api/students", jsonParser, function (req, res) {
+app.post("/api/gamers", jsonParser, function (req, res) {
 
     if (!req.body) return res.sendStatus(400);
 
-    const studentName = req.body.name;
-    const studentLastName = req.body.lastname;
-    const studentAge = req.body.age;
-    const studentGroup = req.body.group;
+    const gamerName = req.body.name;
+    const gamerLastName = req.body.lastname;
+    const gamerAge = req.body.age;
+    const gamerDiscipline = req.body.discipline;
 
-    const student = new Student({ name: studentName, lastname: studentLastName, age: studentAge, group: studentGroup });
+    const gamer = new Gamer({ name: gamerName, lastname: gamerLastName, age: gamerAge, discipline: gamerDiscipline });
 
-    student.save(function (err) {
+    gamer.save(function (err) {
         if (err) return console.log(err);
-        res.send(student);
+        res.send(gamer);
     });
 });
 
-app.delete("/api/students/:id", function (req, res) {
+app.delete("/api/gamers/:id", function (req, res) {
     const id = req.params.id;
-    Student.findByIdAndDelete(id, function (err, student) {
+    Gamer.findByIdAndDelete(id, function (err, gamer) {
 
         if (err) return console.log(err);
-        res.send(student);
+        res.send(gamer);
     });
 });
 
-app.put("/api/students", jsonParser, function (req, res) {
+app.put("/api/gamers", jsonParser, function (req, res) {
 
     if (!req.body) return res.sendStatus(400);
     const id = req.body.id;
-    const studentName = req.body.name;
-    const studentLastName = req.body.lastname;
-    const studentAge = req.body.age;
-    const studentGroup = req.body.group;
+    const gamerName = req.body.name;
+    const gamerLastName = req.body.lastname;
+    const gamerAge = req.body.age;
+    const gamerDiscipline = req.body.discipline;
 
-    const newStudent = { age: studentAge, lastname: studentLastName, name: studentName, group: studentGroup };
+    const newGamer = { age: gamerAge, lastname: gamerLastName, name: gamerName, discipline: gamerDiscipline };
 
-    Student.findOneAndUpdate({ _id: id }, newStudent, { new: true }, function (err, student) {
+    Gamer.findOneAndUpdate({ _id: id }, newGamer, { new: true }, function (err, gamer) {
         if (err) return console.log(err);
-        res.send(student);
+        res.send(gamer);
     });
 });
